@@ -22,7 +22,7 @@ def start_consumer():
 
         userId = event["userId"]
         new_email = event["email"]
-        new_address = event["deliveryAddress"]
+        new_address = event.get("address") or event.get("deliveryAddress")
 
         # update ALL orders for that user
         orders_collection.update_many(
@@ -37,3 +37,6 @@ def start_consumer():
 
     channel.basic_consume(queue="user-updates", on_message_callback=callback, auto_ack=True)
     channel.start_consuming()
+
+if __name__ == "__main__":
+    start_consumer()
