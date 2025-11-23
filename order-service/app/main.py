@@ -26,7 +26,7 @@ def create_order(data: OrderCreate):
         "userId": data.userId,
         "items": [item.dict() for item in data.items],
         "email": data.email,
-        "addrdeliveryAddressess": data.deliveryAddress,
+        "deliveryAddress": data.deliveryAddress,
         "status": "PENDING",
         "createdAt": datetime.utcnow().isoformat(),
         "updatedAt": datetime.utcnow().isoformat()
@@ -75,7 +75,7 @@ def update_email(orderId: str, data: UpdateEmail):
 def update_address(orderId: str, data: UpdateAddress):
     result = orders_collection.find_one_and_update(
         {"_id": ObjectId(orderId)},
-        {"$set": {"address": data.address, "updatedAt": datetime.utcnow().isoformat()}},
+        {"$set": {"deliveryAddress": data.deliveryAddress, "updatedAt": datetime.utcnow().isoformat()}},
         return_document=True
     )
 
