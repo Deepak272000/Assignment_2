@@ -1,8 +1,9 @@
 from fastapi import HTTPException, FastAPI
 from .database import users_collection
 from .schemas import UserCreate, UpdateAddress, UpdateEmail
-from bson import objectid
+from bson import ObjectId
 from datetime import datetime
+from .publisher import publish_user_updated
 
 app = FastAPI (title="User service v1", version = "1.0")
 
@@ -34,22 +35,40 @@ def create_user(data: UserCreate):
 @app.put("/users/{userId}/email")
 def update_email(userId: str, data: UpdateEmail):
     result = users_collection.find_one_and_update(
-        {"_Id": objectid(userId)},
+        {"_id": ObjectId(userId)},
         {"$set": {"email": data.email, "updatedAt": datetime.utcnow().isoformat()}},
         return_document= True
     )
     if not result:
         raise HTTPException(status_code=404, detail="User Not Found!")
+    event = {
+        "type": "UserUpdated",
+        "userId": str(result["_id"]),
+        "email": data.email,
+        "deliveryAddress": result["deliveryAddress"]
+    }
+
+    publish_user_updated(event)
+
     return serialize_user(result)
 
 #now I will update address for user:
 @app.put("/users/({userId})/address")
 def update_address(userId:str, data:UpdateAddress):
     result = users_collection.find_one_and_update(
-        {"_Id": objectid(userId)},
+        {"_id": ObjectId(userId)},
         {"$set": {"deliveryAddress": data.deliveryAddress, "updatedAt": datetime.utcnow().isoformat()}},
         return_document= True
     )
     if not result:
         raise HTTPException(status_code=404, detail="User Not Found!")
+    event = {
+        "type": "UserUpdated",
+        "userId": str(result["_id"]),
+        "email": result["email"],
+        "deliveryAddress": data.deliveryAddress
+    }
+
+    publish_user_updated(event)
+
     return serialize_user(result)
