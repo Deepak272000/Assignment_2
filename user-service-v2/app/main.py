@@ -91,3 +91,16 @@ def update_address(userId:str, data:UpdateAddress):
     publish_user_updated(event)
 
     return serialize_user(result)
+
+#get user by ID:
+@app.get("/users/{userId}")
+def get_user(userId:str):
+    user = users_collection.find_one({"_id": ObjectId(userId)})
+    if not user:
+        raise HTTPException(status_code=404, detail="User Not Found!")
+    return serialize_user(user)
+
+# Health check
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "user-service-v2"}

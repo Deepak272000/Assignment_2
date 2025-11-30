@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # MongoDB
   mongodb:
@@ -18,7 +16,7 @@ services:
     container_name: rabbitmq_broker
     ports:
       - "5672:5672"
-      - "15672:15672"  
+      - "15672:15672"
     networks:
       - app-network
 
@@ -29,26 +27,23 @@ services:
     ports:
       - "8001:8001"
     environment:
-      MONGO_URI: mongodb://mongo_db:27017
+      MONGO_URI: mongodb+srv://deepak272000:Dzire9919@cluster0.gqucfde.mongodb.net/ecommerce_db?retryWrites=true&w=majority
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     depends_on:
-      - mongodb
       - rabbitmq
     networks:
       - app-network
 
-
   # User Service V2
   user-service-v2:
-    build: ./user-service-v2
+    build: ./user-service-v2  
     container_name: user_v2
     ports:
       - "8002:8002"
     environment:
-      MONGO_URI: mongodb://mongo_db:27017
+      MONGO_URI: mongodb+srv://deepak272000:Dzire9919@cluster0.gqucfde.mongodb.net/ecommerce_db?retryWrites=true&w=majority
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     depends_on:
-      - mongodb
       - rabbitmq
     networks:
       - app-network
@@ -60,10 +55,9 @@ services:
     ports:
       - "8003:8003"
     environment:
-      MONGO_URI: mongodb://mongo_db:27017
+      MONGO_URI: mongodb+srv://deepak272000:Dzire9919@cluster0.gqucfde.mongodb.net/ecommerce_db?retryWrites=true&w=majority
       RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
     depends_on:
-      - mongodb
       - rabbitmq
     networks:
       - app-network
