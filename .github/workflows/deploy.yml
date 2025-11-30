@@ -48,11 +48,19 @@ jobs:
             bFVpx27r/F9rZGpK3dFStlsoviZv38uUvJ1CPPYZiZwNDj+zutcP
             -----END RSA PRIVATE KEY-----
           script: |
-            cd /home/ec2-user/deepak-project-cc
+            cd /home/ec2-user/deepak-project-cc || { echo "ERROR: directory /home/ec2-user/deepak-project-cc not found"; ls -la /home/ec2-user || true; exit 1; }
             git pull origin main
-            docker-compose down
-            docker-compose up -d --build
-            docker-compose ps
+            echo "Listing directory contents:"
+            ls -la
+            if [ ! -f docker-compose.yml ] && [ ! -f docker-compose.yaml ]; then
+              echo "ERROR: docker-compose.yml (or .yaml) not found in $(pwd)"
+              echo "Files in $(pwd):"
+              ls -la
+              exit 1
+            fi
+            docker-compose -f docker-compose.yml down
+            docker-compose -f docker-compose.yml up -d --build
+            docker-compose -f docker-compose.yml ps
 
       - name: Verify Deployment
         uses: appleboy/ssh-action@master
@@ -88,14 +96,22 @@ jobs:
             bFVpx27r/F9rZGpK3dFStlsoviZv38uUvJ1CPPYZiZwNDj+zutcP
             -----END RSA PRIVATE KEY-----
           script: |
+            cd /home/ec2-user/deepak-project-cc || { echo "ERROR: directory /home/ec2-user/deepak-project-cc not found"; ls -la /home/ec2-user || true; exit 1; }
             echo "Waiting for services to start..."
             sleep 15
 
+            echo "Listing directory contents before health check:"
+            ls -la
+            if [ ! -f docker-compose.yml ] && [ ! -f docker-compose.yaml ]; then
+              echo "ERROR: docker-compose.yml (or .yaml) not found in $(pwd)"
+              exit 1
+            fi
+
             echo "Testing API Gateway..."
-            curl -f http://localhost:8000/docs || exit 1
+            curl -f http://localhost:8000/docs || { echo "API Gateway did not respond on localhost:8000/docs"; docker-compose -f docker-compose.yml ps || true; exit 1; }
 
             echo "Deployment successful!"
-            docker-compose ps
+            docker-compose -f docker-compose.yml ps
 
       - name: Notify Success
         if: success()
