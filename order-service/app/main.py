@@ -13,7 +13,7 @@ def serialize_order(order):
         "userId": order["userId"],
         "items": order["items"],
         "email": order["email"],
-        "deliveryAddress": order["deliveryAddress"],
+        "deliveryAddress": order.get("deliveryAddress", ""),
         "status": order["status"],
         "createdAt": order["createdAt"],
         "updatedAt": order["updatedAt"]
@@ -83,6 +83,18 @@ def update_address(orderId: str, data: UpdateAddress):
         raise HTTPException(404, "Order not found!")
 
     return serialize_order(result)
+
+@app.get("/orders/{orderId}")
+def get_order(orderId: str):
+    order = orders_collection.find_one({"_id": ObjectId(orderId)})
+    if not order:
+        raise HTTPException(404, "Order not found!")
+    return serialize_order(order)
+
+# Health check
+@app.get("/health")
+def health():
+    return {"status": "ok", "service": "order-service"}
 
 import threading
 from .consumer import start_consumer
