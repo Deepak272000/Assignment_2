@@ -83,3 +83,8 @@ def update_address(orderId: str, data: UpdateAddress):
         raise HTTPException(404, "Order not found!")
 
     return serialize_order(result)
+
+import threading
+from .consumer import start_consumer
+
+threading.Thread(target=start_consumer, daemon=True).start()

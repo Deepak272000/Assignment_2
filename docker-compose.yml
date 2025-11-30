@@ -1,12 +1,91 @@
 version: "3.9"
 
 services:
+  # MongoDB
+  mongodb:
+    image: mongo:6
+    container_name: mongo_db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - app-network
+
+  # RabbitMQ
   rabbitmq:
     image: rabbitmq:3-management
-    container_name: rabbitmq
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+    container_name: rabbitmq_broker
     ports:
       - "5672:5672"
-      - "15672:15672"
+      - "15672:15672"  
+    networks:
+      - app-network
+
+  # User Service V1
+  user-service-v1:
+    build: ./user-service-v1
+    container_name: user_v1
+    ports:
+      - "8001:8001"
+    environment:
+      MONGO_URI: mongodb://mongo_db:27017
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - app-network
+
+
+  # User Service V2
+  user-service-v2:
+    build: ./user-service-v2
+    container_name: user_v2
+    ports:
+      - "8002:8002"
+    environment:
+      MONGO_URI: mongodb://mongo_db:27017
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - app-network
+
+  # Order Service
+  order-service:
+    build: ./order-service
+    container_name: order_service
+    ports:
+      - "8003:8003"
+    environment:
+      MONGO_URI: mongodb://mongo_db:27017
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+    depends_on:
+      - mongodb
+      - rabbitmq
+    networks:
+      - app-network
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    container_name: api_gateway
+    ports:
+      - "8000:8000"
+    depends_on:
+      - user-service-v1
+      - user-service-v2
+      - order-service
+    networks:
+      - app-network
+
+# Volumes
+volumes:
+  mongo_data:
+
+# Network
+networks:
+  app-network:
+    driver: bridge

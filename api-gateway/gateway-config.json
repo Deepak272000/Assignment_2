@@ -1,0 +1,6 @@
+{
+  "user_v1_percentage": 70,
+  "user_v1_url": "http://localhost:8001",
+  "user_v2_url": "http://localhost:8002",
+  "order_url": "http://localhost:8004"
+}

@@ -1,8 +1,10 @@
 import pika
 import json
 from .database import orders_collection
+import os
 
-RABBIT_URL = "amqp://guest:guest@localhost:5672/"
+RABBIT_URL = os.getenv("RABBITMQ_URL", "amqp://guest:guest@rabbitmq:5672/")
+
 
 def start_consumer():
     params = pika.URLParameters(RABBIT_URL)
