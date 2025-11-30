@@ -36,14 +36,14 @@ def create_order(data: OrderCreate):
     order["_id"] = result.inserted_id
     return serialize_order(order)
 
-@app.get("/orders")
-def list_orders(status: str = None):
-    query = {}
-    if status:
-        query["status"] = status
+# @app.get("/orders")
+# def list_orders(status: str = None):
+#     query = {}
+#     if status:
+#         query["status"] = status
 
-    orders = list(orders_collection.find(query))
-    return [serialize_order(o) for o in orders]
+#     orders = list(orders_collection.find(query))
+#     return [serialize_order(o) for o in orders]
 
 @app.put("/orders/{orderId}/status")
 def update_status(orderId: str, data: UpdateStatus):

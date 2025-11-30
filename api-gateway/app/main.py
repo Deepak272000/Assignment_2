@@ -213,13 +213,13 @@ async def create_order(order: OrderCreate):
         response = await client.post(f"{ORDER_URL}/orders", json=order.dict())
         return response.json()
 
-@app.get("/orders", tags=["Order Service"], summary="List Orders")
-async def list_orders(status: Optional[str] = None):
-    """List all orders, optionally filter by status (PENDING, COMPLETED, etc.)"""
-    async with httpx.AsyncClient() as client:
-        params = {"status": status} if status else {}
-        response = await client.get(f"{ORDER_URL}/orders", params=params)
-        return response.json()
+# @app.get("/orders", tags=["Order Service"], summary="List Orders")
+# async def list_orders(status: Optional[str] = None):
+#     """List all orders, optionally filter by status (PENDING, COMPLETED, etc.)"""
+#     async with httpx.AsyncClient() as client:
+#         params = {"status": status} if status else {}
+#         response = await client.get(f"{ORDER_URL}/orders", params=params)
+#         return response.json()
 
 @app.put("/orders/{orderId}/status", tags=["Order Service"], summary="Update Order Status")
 async def update_order_status(orderId: str, data: UpdateStatus):
